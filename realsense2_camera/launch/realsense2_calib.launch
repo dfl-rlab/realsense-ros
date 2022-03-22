@@ -1,0 +1,25 @@
+<launch>
+  <arg name="camera_view" default="false" />
+  <arg name="record_data" default="false" />
+  <arg name="namespace" default="camera" />
+
+  <!--arg name="data_dir" value="/home/bilal/Datasets/kalibr/kalibr_imu_camera_sample/20211230"/-->
+  <arg name="data_dir" value="/home/bilal/LogData/perception_payload/perception_kit/"/>
+
+  <node name="realsense2_imu_node" pkg="realsense2_camera" type="realsense2_imu_node" output="screen">
+    <param name="accel_topic" type="str" value="/$(arg namespace)/accel/sample" />
+    <param name="gyro_topic" type="str" value="/$(arg namespace)/gyro/sample" />
+    <param name="imu_topic" type="str" value="/$(arg namespace)/imu" />
+  </node>
+
+  <node pkg="rosbag" type="record" name="rosbag_record" output="screen" 
+        args="record -o $(arg data_dir)/calib
+            /camera1/imu
+            /camera1/color/image_raw
+            /camera2/imu
+            /camera2/color/image_raw" if="$(arg record_data)" />
+  
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen" if="$(arg camera_view)">
+    <remap from="image" to="/camera1/color/image_raw"/>
+  </node>
+</launch>

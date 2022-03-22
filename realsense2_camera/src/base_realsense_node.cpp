@@ -112,9 +112,12 @@ BaseRealSenseNode::BaseRealSenseNode(ros::NodeHandle& nodeHandle,
     _stream_name[RS2_STREAM_INFRARED] = "infra";
 
     // Types for color stream
-    _image_format[RS2_STREAM_COLOR] = CV_8UC3;    // CVBridge type
-    _encoding[RS2_STREAM_COLOR] = sensor_msgs::image_encodings::RGB8; // ROS message type
-    _unit_step_size[RS2_STREAM_COLOR] = 3; // sensor_msgs::ImagePtr row step size
+    //_image_format[RS2_STREAM_COLOR] = CV_8UC3;    // CVBridge type
+    //_encoding[RS2_STREAM_COLOR] = sensor_msgs::image_encodings::RGB8; // ROS message type
+    //_unit_step_size[RS2_STREAM_COLOR] = 3; // sensor_msgs::ImagePtr row step size
+    _format[RS2_STREAM_INFRARED] = RS2_FORMAT_Y16;
+    _image_format[RS2_STREAM_COLOR] = CV_16UC1;    // CVBridge type
+    _encoding[RS2_STREAM_COLOR] = sensor_msgs::image_encodings::MONO16; // ROS message type
     _stream_name[RS2_STREAM_COLOR] = "color";
     _depth_aligned_encoding[RS2_STREAM_COLOR] = sensor_msgs::image_encodings::TYPE_16UC1;
 
@@ -1080,6 +1083,15 @@ void BaseRealSenseNode::enable_devices()
                     {
                         default_profile = profile;
                     }
+                    if ((_width[elem] == 0 || video_profile.width() == 1280) &&
+                        (_height[elem] == 0 || video_profile.height() == 800) &&
+                        (_fps[elem] == 0 || video_profile.fps() == 5) &&
+                        (video_profile.format() == RS2_FORMAT_Y16 ))
+                    {
+                      selected_profile = profile;
+                      break;
+                    }
+                    /*
                     if ((_width[elem] == 0 || video_profile.width() == _width[elem]) &&
                         (_height[elem] == 0 || video_profile.height() == _height[elem]) &&
                         (_fps[elem] == 0 || video_profile.fps() == _fps[elem]) &&
@@ -1088,6 +1100,7 @@ void BaseRealSenseNode::enable_devices()
                         selected_profile = profile;
                         break;
                     }
+                    */
                 }
 
             }
@@ -2177,7 +2190,8 @@ void BaseRealSenseNode::publishPointCloud(rs2::points pc, const ros::Time& t, co
     rs2::frameset::iterator texture_frame_itr = frameset.end();
     if (use_texture)
     {
-        std::set<rs2_format> available_formats{ rs2_format::RS2_FORMAT_RGB8, rs2_format::RS2_FORMAT_Y8 };
+        //std::set<rs2_format> available_formats{ rs2_format::RS2_FORMAT_RGB8, rs2_format::RS2_FORMAT_Y8 };
+        std::set<rs2_format> available_formats{ rs2_format::RS2_FORMAT_Y16, rs2_format::RS2_FORMAT_Y8 };
 
         texture_frame_itr = std::find_if(frameset.begin(), frameset.end(), [&texture_source_id, &available_formats] (rs2::frame f)
                                 {return (rs2_stream(f.get_profile().stream_type()) == texture_source_id) &&
