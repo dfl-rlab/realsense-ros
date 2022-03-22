@@ -132,6 +132,8 @@ target_link_libraries(${PROJECT_NAME}
     )
 endif()
 
+add_executable(realsense2_imu_node src/realsense2_imu_node.cpp)
+target_link_libraries(realsense2_imu_node ${catkin_LIBRARIES})
 
 # Install nodelet library
 install(TARGETS ${PROJECT_NAME}
