@@ -1,0 +1,13 @@
+<launch>
+	<node name="relay_first_rgb_img" pkg="topic_tools" type="relay" args="/camera1/color/image_raw  /stereo/left/image_raw"/>
+	<node name="relay_first_rgb_info" pkg="topic_tools" type="relay" args="/camera1/color/camera_info  /stereo/left/camera_info"/>
+	<node name="relay_second_rgb_img" pkg="topic_tools" type="relay" args="/camera2/color/image_raw /stereo/right/image_raw"/>
+	<node name="relay_second_rgb_info" pkg="topic_tools" type="relay" args="/camera2/color/camera_info  /stereo/right/camera_info"/>
+
+	<node pkg="realsense2_camera" type="multi_rgb_node" name="multi_rgb_node" output="screen">
+		<remap from="stereo" to="stereo"/>
+		<remap from="image" to="image_raw"/>
+		<param name="queue_size" value="5"/>          
+		<param name="approximate_sync" value="true"/> 
+	</node>
+</launch>
